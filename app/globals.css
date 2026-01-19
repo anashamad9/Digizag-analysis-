@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #1b150f;
+  --ink-muted: #5f564b;
+  --paper: #ffffff;
+  --paper-strong: #f4f4f4;
+  --card: #ffffff;
+  --accent: #16a34a;
+  --accent-2: #0d9488;
+  --stroke: #e1e1e1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--ink);
+  background: #ffffff;
+}
+
+::selection {
+  background: rgba(22, 163, 74, 0.2);
+}
+
+.fade-up {
+  animation: fadeUp 340ms ease-out;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
