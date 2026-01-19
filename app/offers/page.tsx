@@ -16,10 +16,10 @@ export default async function Page() {
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-normal text-[color:var(--ink-muted)]">
-            Performance overview
+            Code performance
           </p>
           <h1 className="text-3xl font-[var(--font-display)] tracking-tight md:text-5xl">
-            Coupon code conversions by day
+            Code performance by day
           </h1>
           <p className="max-w-2xl text-sm text-[color:var(--ink-muted)] md:text-base">
             Tabs group each offer. Inside, every coupon code shows its daily conversion

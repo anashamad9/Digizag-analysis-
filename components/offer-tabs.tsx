@@ -189,65 +189,6 @@ export default function OfferTabs({ offers, daysInMonth, monthLabel, monthIndex,
             </p>
           </div>
 
-          <section className="rounded-2xl border border-[color:var(--stroke)] bg-white/80 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[color:var(--ink)]">
-                Weird patterns per code
-              </h3>
-              <span className="text-xs text-[color:var(--ink-muted)]">
-                {activeOffer.codes.length} codes
-              </span>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {activeOffer.codes.map((codeRow) => {
-                const summary = buildPatternSummary(codeRow.counts, maxPastDay);
-                const totalFlags =
-                  summary.drops.length +
-                  summary.zeroRuns.length +
-                  summary.lowAvgDays.length +
-                  summary.veryLowAvgDays.length +
-                  summary.highAvgDays.length;
-
-                return (
-                  <details
-                    key={`patterns-${codeRow.code}`}
-                    className="rounded-xl border border-[color:var(--stroke)] bg-white px-4 py-3"
-                  >
-                    <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-semibold text-[color:var(--ink)]">
-                      <span className="truncate">{codeRow.code}</span>
-                      <span className="text-xs font-medium text-[color:var(--ink-muted)]">
-                        {totalFlags} flags
-                      </span>
-                    </summary>
-                    <div className="mt-3 space-y-2 text-xs text-[color:var(--ink-muted)]">
-                      {summary.drops.length ? (
-                        <div>
-                          Drops: {summary.drops.map((item) => `Day ${item.day} (${item.prev}→${item.value})`).join(", ")}
-                        </div>
-                      ) : null}
-                      {summary.zeroRuns.length ? (
-                        <div>
-                          Zero streaks: {summary.zeroRuns.map((run) => `Days ${run.start}-${run.end}`).join(", ")}
-                        </div>
-                      ) : null}
-                      {summary.veryLowAvgDays.length || summary.lowAvgDays.length ? (
-                        <div>
-                          Below avg: {summary.veryLowAvgDays.map((day) => `Day ${day} (very low)`).concat(summary.lowAvgDays.map((day) => `Day ${day} (low)`)).join(", ")}
-                        </div>
-                      ) : null}
-                      {summary.highAvgDays.length ? (
-                        <div>
-                          Above avg: {summary.highAvgDays.map((day) => `Day ${day}`).join(", ")}
-                        </div>
-                      ) : null}
-                      {totalFlags === 0 ? <div>No weird patterns detected.</div> : null}
-                    </div>
-                  </details>
-                );
-              })}
-            </div>
-          </section>
-
           <div className="relative overflow-x-auto rounded-2xl border border-[color:var(--stroke)] bg-white/70">
             <table className="min-w-[860px] w-full border-separate border-spacing-0 text-left text-sm">
               <thead className="sticky top-0 z-10 bg-[color:var(--paper-strong)] text-xs uppercase tracking-normal text-[color:var(--ink-muted)]">
@@ -319,6 +260,74 @@ export default function OfferTabs({ offers, daysInMonth, monthLabel, monthIndex,
               </tbody>
             </table>
           </div>
+
+          <section className="rounded-2xl border border-[color:var(--stroke)] bg-white/80 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[color:var(--ink)]">
+                Weird patterns per code
+              </h3>
+              <span className="text-xs text-[color:var(--ink-muted)]">
+                {activeOffer.codes.length} codes
+              </span>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {activeOffer.codes.map((codeRow) => {
+                const summary = buildPatternSummary(codeRow.counts, maxPastDay);
+                const totalFlags =
+                  summary.drops.length +
+                  summary.zeroRuns.length +
+                  summary.lowAvgDays.length +
+                  summary.veryLowAvgDays.length +
+                  summary.highAvgDays.length;
+
+                return (
+                  <details
+                    key={`patterns-${codeRow.code}`}
+                    className="rounded-xl border border-[color:var(--stroke)] bg-white px-4 py-3"
+                  >
+                    <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-semibold text-[color:var(--ink)]">
+                      <span className="truncate">{codeRow.code}</span>
+                      <span className="text-xs font-medium text-[color:var(--ink-muted)]">
+                        {totalFlags} flags
+                      </span>
+                    </summary>
+                    <div className="mt-3 space-y-2 text-xs text-[color:var(--ink-muted)]">
+                      {summary.drops.length ? (
+                        <div>
+                          Drops: {summary.drops
+                            .map((item) => `Day ${item.day} (${item.prev}→${item.value})`)
+                            .join(", ")}
+                        </div>
+                      ) : null}
+                      {summary.zeroRuns.length ? (
+                        <div>
+                          Zero streaks: {summary.zeroRuns
+                            .map((run) => `Days ${run.start}-${run.end}`)
+                            .join(", ")}
+                        </div>
+                      ) : null}
+                      {summary.veryLowAvgDays.length || summary.lowAvgDays.length ? (
+                        <div>
+                          Below avg: {summary.veryLowAvgDays
+                            .map((day) => `Day ${day} (very low)`)
+                            .concat(summary.lowAvgDays.map((day) => `Day ${day} (low)`))
+                            .join(", ")}
+                        </div>
+                      ) : null}
+                      {summary.highAvgDays.length ? (
+                        <div>
+                          Above avg: {summary.highAvgDays
+                            .map((day) => `Day ${day}`)
+                            .join(", ")}
+                        </div>
+                      ) : null}
+                      {totalFlags === 0 ? <div>No weird patterns detected.</div> : null}
+                    </div>
+                  </details>
+                );
+              })}
+            </div>
+          </section>
         </section>
       ) : null}
     </div>

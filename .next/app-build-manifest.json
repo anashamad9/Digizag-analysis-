@@ -11,6 +11,11 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/offer-performance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/offer-performance/page.js"
+    ],
     "/analysis/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
