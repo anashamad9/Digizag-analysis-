@@ -49,6 +49,60 @@ function buildAlertFlags(counts: number[], maxPastDay: number) {
   return { dropFlags, zeroRunFlags };
 }
 
+function buildPatternSummary(counts: number[], maxPastDay: number) {
+  const nonZeroDays = counts.filter((value) => value > 0).length;
+  const avg = nonZeroDays ? counts.reduce((sum, value) => sum + value, 0) / nonZeroDays : 0;
+  const shouldUseAvgAlerts = avg >= 10;
+  const drops: { day: number; prev: number; value: number }[] = [];
+  const zeroRuns: { start: number; end: number }[] = [];
+  const lowAvgDays: number[] = [];
+  const veryLowAvgDays: number[] = [];
+  const highAvgDays: number[] = [];
+
+  for (let day = 2; day <= Math.min(maxPastDay, counts.length); day += 1) {
+    const prev = counts[day - 2];
+    const value = counts[day - 1];
+    if (prev > 15 && value < prev * 0.6) {
+      drops.push({ day, prev, value });
+    }
+  }
+
+  for (let i = 1; i < counts.length; i += 1) {
+    if (i + 1 > maxPastDay) {
+      continue;
+    }
+    if (counts[i - 1] <= 0 || counts[i] !== 0) {
+      continue;
+    }
+    let j = i;
+    while (j < counts.length && counts[j] === 0 && j + 1 <= maxPastDay) {
+      j += 1;
+    }
+    const runLength = j - i;
+    if (runLength >= 3) {
+      zeroRuns.push({ start: i + 1, end: j });
+    }
+    i = Math.max(i, j - 1);
+  }
+
+  if (shouldUseAvgAlerts) {
+    for (let i = 0; i < Math.min(maxPastDay, counts.length); i += 1) {
+      const value = counts[i];
+      if (value <= 0) continue;
+      const ratio = value / avg;
+      if (ratio < 0.5) {
+        veryLowAvgDays.push(i + 1);
+      } else if (ratio < 0.75) {
+        lowAvgDays.push(i + 1);
+      } else if (ratio > 1.4) {
+        highAvgDays.push(i + 1);
+      }
+    }
+  }
+
+  return { avg, drops, zeroRuns, lowAvgDays, veryLowAvgDays, highAvgDays };
+}
+
 export default function OfferTabs({ offers, daysInMonth, monthLabel, monthIndex, year }: OfferTabsProps) {
   const [active, setActive] = React.useState(offers[0]?.offer ?? "");
   const days = React.useMemo(
@@ -134,6 +188,65 @@ export default function OfferTabs({ offers, daysInMonth, monthLabel, monthIndex,
               {monthLabel || "Monthly view"} · {numberFormat.format(activeOffer.total)} conversions
             </p>
           </div>
+
+          <section className="rounded-2xl border border-[color:var(--stroke)] bg-white/80 p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[color:var(--ink)]">
+                Weird patterns per code
+              </h3>
+              <span className="text-xs text-[color:var(--ink-muted)]">
+                {activeOffer.codes.length} codes
+              </span>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {activeOffer.codes.map((codeRow) => {
+                const summary = buildPatternSummary(codeRow.counts, maxPastDay);
+                const totalFlags =
+                  summary.drops.length +
+                  summary.zeroRuns.length +
+                  summary.lowAvgDays.length +
+                  summary.veryLowAvgDays.length +
+                  summary.highAvgDays.length;
+
+                return (
+                  <details
+                    key={`patterns-${codeRow.code}`}
+                    className="rounded-xl border border-[color:var(--stroke)] bg-white px-4 py-3"
+                  >
+                    <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm font-semibold text-[color:var(--ink)]">
+                      <span className="truncate">{codeRow.code}</span>
+                      <span className="text-xs font-medium text-[color:var(--ink-muted)]">
+                        {totalFlags} flags
+                      </span>
+                    </summary>
+                    <div className="mt-3 space-y-2 text-xs text-[color:var(--ink-muted)]">
+                      {summary.drops.length ? (
+                        <div>
+                          Drops: {summary.drops.map((item) => `Day ${item.day} (${item.prev}→${item.value})`).join(", ")}
+                        </div>
+                      ) : null}
+                      {summary.zeroRuns.length ? (
+                        <div>
+                          Zero streaks: {summary.zeroRuns.map((run) => `Days ${run.start}-${run.end}`).join(", ")}
+                        </div>
+                      ) : null}
+                      {summary.veryLowAvgDays.length || summary.lowAvgDays.length ? (
+                        <div>
+                          Below avg: {summary.veryLowAvgDays.map((day) => `Day ${day} (very low)`).concat(summary.lowAvgDays.map((day) => `Day ${day} (low)`)).join(", ")}
+                        </div>
+                      ) : null}
+                      {summary.highAvgDays.length ? (
+                        <div>
+                          Above avg: {summary.highAvgDays.map((day) => `Day ${day}`).join(", ")}
+                        </div>
+                      ) : null}
+                      {totalFlags === 0 ? <div>No weird patterns detected.</div> : null}
+                    </div>
+                  </details>
+                );
+              })}
+            </div>
+          </section>
 
           <div className="relative overflow-x-auto rounded-2xl border border-[color:var(--stroke)] bg-white/70">
             <table className="min-w-[860px] w-full border-separate border-spacing-0 text-left text-sm">
