@@ -1,5 +1,4 @@
 {
-  "/analysis/page": "app/analysis/page.js",
-  "/offers/page": "app/offers/page.js",
-  "/offer-performance/page": "app/offer-performance/page.js"
+  "/home/page": "app/home/page.js",
+  "/login/page": "app/login/page.js"
 }
